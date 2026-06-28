@@ -115,14 +115,71 @@ make check-deploy
 make ci          # lint + typecheck + test + security
 ```
 
-## Project layout
+## Project structure
 
 ```
-config/        project package: settings split, urls, wsgi/asgi, celery
-apps/users/    custom email user model + /me API
-apps/crm/      CRM web UI (HTMX + Bootstrap CRUD)
-apps/common/   base models, pagination, exception handler, health, mixins
-templates/     base.html + CRM + allauth overrides
-static/        project CSS/JS
-docker/        container entrypoint
+django-project-template/
+├── config/                       # Django project package (rename-free, generic)
+│   ├── settings/
+│   │   ├── base.py               # shared settings (12-factor, env-driven)
+│   │   ├── dev.py                # local dev: DEBUG, console email, toolbar
+│   │   ├── prod.py               # hardening, Sentry, JSON logs (fails loud)
+│   │   └── test.py               # fast hermetic settings (pytest + mypy)
+│   ├── celery.py                 # Celery app (autodiscovers tasks)
+│   ├── urls.py                   # root URLconf (web + API + auth + docs)
+│   ├── wsgi.py  asgi.py          # server entrypoints
+│   └── __init__.py               # imports celery_app
+│
+├── apps/
+│   ├── users/                    # custom email user model + REST API
+│   │   ├── models.py             # User (email login, no username)
+│   │   ├── managers.py           # email-based UserManager
+│   │   ├── serializers.py        # UserSerializer / UserUpdateSerializer
+│   │   ├── views.py  urls.py     # /api/v1/me/ endpoint
+│   │   ├── admin.py              # email-tuned admin
+│   │   ├── migrations/0001_initial.py
+│   │   └── tests/                # factories.py + test_users.py
+│   │
+│   ├── crm/                      # server-rendered CRM (web UI example)
+│   │   ├── views.py              # User CRUD (LoginRequired + perms, HTMX)
+│   │   ├── forms.py              # crispy-bootstrap5 create/edit forms
+│   │   ├── urls.py
+│   │   └── tests/test_crm.py
+│   │
+│   └── common/                   # cross-cutting "core" utilities
+│       ├── models.py             # TimeStamped / UUID abstract bases
+│       ├── pagination.py         # DefaultPagination
+│       ├── exceptions.py         # custom DRF error envelope
+│       ├── health.py             # /healthz + /readyz probes
+│       ├── mixins.py             # HtmxResponseMixin, StaffRequiredMixin
+│       └── tests/test_health.py
+│
+├── templates/
+│   ├── base.html                 # Bootstrap 5 + HTMX layout
+│   ├── allauth/layouts/base.html # allauth pages → project chrome
+│   ├── crm/                      # user_list / form / detail / delete
+│   │   └── partials/             # _user_table, _user_row (HTMX fragments)
+│   └── includes/_messages.html
+│
+├── static/css/app.css            # project styles (collected by WhiteNoise)
+├── docker/entrypoint.sh          # web/worker/beat dispatch + ddtrace gating
+├── tests/                        # project-level test package
+├── conftest.py                   # shared pytest fixtures (root → all apps)
+├── manage.py
+│
+├── pyproject.toml                # deps + ruff/mypy/pytest/coverage/bandit config
+├── uv.lock                       # pinned dependency lockfile
+├── .python-version               # 3.13
+├── .env.example                  # documented environment variables
+├── .pre-commit-config.yaml       # ruff, mypy, bandit, hygiene hooks
+├── Dockerfile                    # multi-stage, uv-based, non-root
+├── docker-compose.yml            # web, db, redis, worker, beat (healthchecks)
+├── docker-compose.override.yml   # local dev overrides (bind mounts, autoreload)
+├── Makefile                      # install/run/lint/test/ci/up shortcuts
+├── .github/workflows/ci.yml      # lint · type-check · test · security
+├── README.md  LICENSE
 ```
+
+## License
+
+Released under the [MIT License](LICENSE).
