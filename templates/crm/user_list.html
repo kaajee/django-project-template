@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Users · CRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Users</h1>
+  {% if perms.users.add_user %}
+    <a class="btn btn-primary" href="{% url 'crm:user-create' %}">New user</a>
+  {% endif %}
+</div>
+
+<input
+  class="form-control mb-3"
+  type="search"
+  name="q"
+  value="{{ search }}"
+  placeholder="Search by email or name…"
+  hx-get="{% url 'crm:user-list' %}"
+  hx-trigger="input changed delay:300ms, search"
+  hx-target="#user-table"
+  hx-select="#user-table"
+  hx-swap="outerHTML"
+  hx-push-url="true">
+
+{% include "crm/partials/_user_table.html" %}
+{% endblock %}

@@ -1,0 +1,147 @@
+[project]
+name = "django-project-template"
+version = "0.1.0"
+description = "Production-grade hybrid Django template: DRF API + server-rendered web UI (HTMX + Bootstrap), with auth, Celery, observability, and full tooling."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django~=5.2",
+    "djangorestframework~=3.16",
+    "django-allauth[mfa,socialaccount]~=65.18",
+    "djangorestframework-simplejwt~=5.5",
+    "drf-spectacular~=0.28",
+    "drf-spectacular-sidecar",
+    "psycopg[binary,pool]~=3.2",
+    "django-environ~=0.12",
+    "celery[redis]~=5.5",
+    "django-celery-beat~=2.7",
+    "redis~=5.2",
+    "django-redis~=5.4",
+    "django-cors-headers~=4.7",
+    "django-ratelimit~=4.1",
+    "django-crispy-forms~=2.3",
+    "crispy-bootstrap5~=2024.10",
+    "gunicorn~=23.0",
+    "whitenoise[brotli]~=6.8",
+    "sentry-sdk[celery,django]~=2.20",
+    "ddtrace~=3.0",
+    "python-json-logger~=3.2",
+    "argon2-cffi~=23.1",
+]
+
+[dependency-groups]
+dev = [
+    "ruff~=0.9",
+    "mypy~=1.14",
+    "django-stubs[compatible-mypy]~=5.1",
+    "djangorestframework-stubs~=3.15",
+    "pytest>=9.0.3",
+    "pytest-django>=4.11",
+    "pytest-cov~=6.0",
+    "pytest-xdist~=3.6",
+    "factory-boy~=3.3",
+    "coverage[toml]~=7.6",
+    "pre-commit~=4.0",
+    "django-extensions~=3.2",
+    "django-debug-toolbar~=4.4",
+    "bandit~=1.8",
+    "pip-audit~=2.7",
+    "types-redis",
+    "types-requests",
+]
+
+# ---------------------------------------------------------------------------
+# Ruff: linter + formatter
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["**/migrations/**"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "DJ", "B", "S", "C4", "SIM"]
+ignore = [
+    "S101", # assert used (pytest)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S105", "S106", "S311"]
+"**/test_*.py" = ["S105", "S106", "S311"]
+"config/settings/*.py" = ["F403", "F405", "S105"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config"]
+
+# ---------------------------------------------------------------------------
+# mypy: static type checking with Django + DRF plugins
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.13"
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+# Pragmatic-but-real: enforce annotations and catch bugs, but don't fight
+# Django/DRF's generic class-based views (which would otherwise demand explicit
+# type parameters on every ListView/ModelSerializer).
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = false
+disallow_any_generics = false
+exclude = ["migrations/", "build/", "dist/"]
+
+[[tool.mypy.overrides]]
+module = ["*.migrations.*", "*.tests.*", "conftest"]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "django_ratelimit",
+    "django_ratelimit.*",
+    "debug_toolbar",
+    "debug_toolbar.*",
+    "crispy_forms",
+    "crispy_forms.*",
+    "celery",
+    "celery.*",
+    "environ",
+    "environ.*",
+    "allauth",
+    "allauth.*",
+]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
+
+# ---------------------------------------------------------------------------
+# pytest + coverage
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py", "tests.py"]
+testpaths = ["apps", "tests"]
+addopts = "--strict-markers --reuse-db --cov=apps --cov=config --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["apps", "config"]
+branch = true
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "config/asgi.py",
+    "config/wsgi.py",
+    "manage.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 85
+
+# ---------------------------------------------------------------------------
+# bandit (config consumed via -c pyproject.toml)
+# ---------------------------------------------------------------------------
+[tool.bandit]
+exclude_dirs = ["tests", "migrations", ".venv"]

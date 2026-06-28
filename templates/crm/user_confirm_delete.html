@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Delete user · CRM{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h1 class="h3 mb-4">Delete user</h1>
+    <p>Are you sure you want to delete <strong>{{ object.email }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Delete</button>
+      <a class="btn btn-secondary" href="{% url 'crm:user-list' %}">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

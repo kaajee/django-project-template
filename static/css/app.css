@@ -1,0 +1,26 @@
+/* Project styles layered on top of Bootstrap 5. */
+
+body {
+  background-color: #f8f9fa;
+}
+
+main.container {
+  max-width: 1100px;
+}
+
+/* Give allauth's plain form inputs a Bootstrap-ish look. */
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="search"] {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+}
+
+form button[type="submit"] {
+  margin-top: 0.5rem;
+}

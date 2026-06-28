@@ -1,0 +1,26 @@
+# Local development overrides (applied automatically by `docker compose up`).
+# Bind-mounts the source for live editing and runs the dev autoreload server.
+services:
+  web:
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+    volumes:
+      - .:/app
+    # Drop the production manifest-static healthcheck dependency in dev.
+    healthcheck:
+      disable: true
+
+  worker:
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+    volumes:
+      - .:/app
+
+  beat:
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+    volumes:
+      - .:/app

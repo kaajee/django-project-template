@@ -1,0 +1,21 @@
+<tr id="user-row-{{ object.pk }}">
+  <td><a href="{% url 'crm:user-detail' object.pk %}">{{ object.email }}</a></td>
+  <td>{{ object.full_name|default:"—" }}</td>
+  <td>
+    {% if object.is_active %}
+      <span class="badge text-bg-success">Active</span>
+    {% else %}
+      <span class="badge text-bg-secondary">Inactive</span>
+    {% endif %}
+  </td>
+  <td>{% if object.is_staff %}<span class="badge text-bg-info">Staff</span>{% endif %}</td>
+  <td>{{ object.date_joined|date:"Y-m-d" }}</td>
+  <td class="text-end">
+    {% if perms.users.change_user %}
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'crm:user-update' object.pk %}">Edit</a>
+    {% endif %}
+    {% if perms.users.delete_user %}
+      <a class="btn btn-sm btn-outline-danger" href="{% url 'crm:user-delete' object.pk %}">Delete</a>
+    {% endif %}
+  </td>
+</tr>

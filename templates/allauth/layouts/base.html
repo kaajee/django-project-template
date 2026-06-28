@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% comment %}
+Override allauth's base layout so every auth page (login, signup, email
+verification, password reset, MFA) renders inside the project's Bootstrap
+chrome. allauth's pages define {% block content %}, which is the same block
+declared in base.html, so their content drops straight into <main>.
+{% endcomment %}
+
+{% block title %}{% block head_title %}Account{% endblock %}{% endblock %}
